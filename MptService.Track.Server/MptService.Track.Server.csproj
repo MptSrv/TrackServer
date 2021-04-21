@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <UserSecretsId>dotnet-MptService.Track.Server-1D598C5D-221F-44B2-8660-198CE1403437</UserSecretsId>
+    <UserSecretsId>dotnet-MptService.Track.Server-1D598C5D-221F-44B2-8660-198CE1403437</UserSecretsId>    
   </PropertyGroup>
 
   <ItemGroup>

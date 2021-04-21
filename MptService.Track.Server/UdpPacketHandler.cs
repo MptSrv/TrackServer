@@ -35,7 +35,7 @@ namespace MptService.Track.Server
             int number = (data[7] << 8) + data[6];
 
             return (prefix, number);
-        }
+        }        
 
         /// <summary>
         /// Создает экземпляр навигационной отметки
@@ -43,7 +43,7 @@ namespace MptService.Track.Server
         /// <param name="stationId">ID радиостанции, от которой поступили навигационные данные</param>
         /// <param name="data">Навигационное сообщение</param>
         /// <returns></returns>
-        public static GpsDatum GetGpsDatum(int stationId, byte[] data)
+        public static GpsDatum GetGpsDatum(Guid stationId, byte[] data)
         {
             // примера пакета данных: 3A 1F 02 00 16 01 63 02 0C 10 07 4E B0 4C 8F C4 06 A0 00 00 00 00 00 00 21 00 A2 A3 FF A7 B7
 
@@ -71,7 +71,7 @@ namespace MptService.Track.Server
             int speed = ((data[18] & 0x0F) << 4) + ((data[19] & 0xF0) >> 4);
             speed = (int)(speed * _nauticalMileCoefficient);
 
-            return new GpsDatum(stationId, DateTimeOffset.Now, latitude, longitude, speed);
+            return new GpsDatum(stationId, DateTime.UtcNow, latitude, longitude, speed);
         }
 
         #region Проверка контрольной суммы

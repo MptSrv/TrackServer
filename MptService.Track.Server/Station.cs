@@ -12,7 +12,7 @@ namespace MptService.Track.Server
     public class Station
     {
         [Column("station_id")]
-        public int StationId { get; private set; }
+        public Guid StationId { get; private set; }
 
         [Column("mpt_prefix")]
         public int Prefix { get; private set; }
@@ -28,6 +28,16 @@ namespace MptService.Track.Server
 
         [Column("division_id")]
         public int? DivisionId { get; private set; }
+
+        public Station(Guid stationId, int prefix, int fleet, int number, string title, int? divisionId)
+        {
+            StationId = stationId;
+            Prefix = prefix;
+            Fleet = fleet;
+            Number = number;
+            Title = title;
+            DivisionId = divisionId;
+        }
 
         /// <summary>
         /// Префикс радиостанции в формате MPT-1327
@@ -54,15 +64,15 @@ namespace MptService.Track.Server
             }
         }
 
-        public Station(int stationId, int prefix, int fleet, int number, string title, int? divisionId)
-        {
-            StationId = stationId;
-            Prefix = prefix;
-            Fleet = fleet;
-            Number = number;
-            Title = title;
-            DivisionId = divisionId;
-        }
+        //public Station(Guid stationId, int prefix, int fleet, int number, string title, int? divisionId)
+        //{
+        //    StationId = stationId;
+        //    Prefix = prefix;
+        //    Fleet = fleet;
+        //    Number = number;
+        //    Title = title;
+        //    DivisionId = divisionId;
+        //}
 
         public override string ToString()
         {

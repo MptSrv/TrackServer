@@ -10,12 +10,15 @@ namespace MptService.Track.Server
     /// </summary>
     [Table("gps_log")]
     public class GpsDatum
-    {               
+    {      
+        [Column("gps_id")]
+        public int GpsDatumId { get; private set; }
+
         [Column("station_id")]
-        public int StationId { get; private set; }
+        public Guid StationId { get; private set; }
 
         [Column("received_time")]
-        public DateTimeOffset ReceivedTime { get; private set; }
+        public DateTime ReceivedTime { get; private set; }
 
         [Column("latitude")]
         public double Latitude { get; private set; }
@@ -34,7 +37,7 @@ namespace MptService.Track.Server
         /// <param name="latitude">Широта, в градусах</param>
         /// <param name="longitude">Долгота, в градусах</param>
         /// <param name="speed">Скорость, км/ч</param>
-        public GpsDatum(int stationId, DateTimeOffset receivedTime, double latitude, double longitude, int speed)
+        public GpsDatum(Guid stationId, DateTime receivedTime, double latitude, double longitude, int speed)
         {
             StationId = stationId;
             ReceivedTime = receivedTime;

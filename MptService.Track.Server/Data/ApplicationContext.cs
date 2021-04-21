@@ -11,6 +11,8 @@ namespace MptService.Track.Server.Data
 
         public DbSet<GpsDatum> GpsData { get; set; }
 
+        public DbSet<Alarm> Alarms { get; set; }
+
         public ApplicationContext(DbContextOptions<ApplicationContext> options)
             : base(options)
         {
@@ -21,7 +23,7 @@ namespace MptService.Track.Server.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<GpsDatum>().HasKey(vf => new { vf.StationId, vf.ReceivedTime }); // в таблице для GpsDatum - составной первичный ключ
+            //modelBuilder.Entity<GpsDatum>().HasKey(vf => new { vf.StationId, vf.ReceivedTime }); // в таблице для GpsDatum - составной первичный ключ
         }
     }
 }
