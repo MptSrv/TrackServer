@@ -18,6 +18,8 @@ namespace MptService.Track.Server
 
         private readonly ApplicationContext _applicationContext;
 
+        private readonly string _logDirectory;
+
         /// <summary>
         /// Обработчик входящих UDP-сообщений от навигационных контроллеров
         /// </summary>
@@ -28,17 +30,17 @@ namespace MptService.Track.Server
             _logger = logger;
 
             var companyPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MptService");
-            var productPath = Path.Combine(companyPath, "TrackServer");
-            if (!Directory.Exists(productPath))
+            _logDirectory = Path.Combine(companyPath, "TrackServer");
+            if (!Directory.Exists(_logDirectory))
             {
-                Directory.CreateDirectory(productPath);
+                Directory.CreateDirectory(_logDirectory);
             }
-            var logFilePath = Path.Combine(productPath, "Log");
+            var logFilePath = Path.Combine(_logDirectory, "Log");
 
             
             loggerFactory.AddFile(logFilePath);            
             _fileLogger = loggerFactory.CreateLogger("FileLogger");
-            _fileLogger.LogInformation(companyPath);
+            //_fileLogger.LogInformation(companyPath);
 
             _applicationContext = applicationContext;            
         }
@@ -47,9 +49,11 @@ namespace MptService.Track.Server
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogInformation("Worker One running at: {time}", DateTimeOffset.Now);
-                _fileLogger.LogInformation("Worker Two running at: {time}", DateTimeOffset.Now);
-                await Task.Delay(Timeout.Infinite, stoppingToken); // TODO: периодические действия?     
+                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+                FileLogger.Clear(_logDirectory);
+                _logger.LogInformation("Logs cleared at: {time}", DateTimeOffset.Now);
+                //_fileLogger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+                await Task.Delay(TimeSpan.FromDays(1), stoppingToken); // TODO: периодические действия?     
             }
         }
 

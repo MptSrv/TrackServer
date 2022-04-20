@@ -40,17 +40,18 @@ namespace MptService.Track.Server
             _stations = _applicationContext.Stations.ToList(); // получаем [однократно, при запуске] список станций
                                                                // 
             _logger = logger;
-            _logger.LogInformation("public UdpReceiver(ApplicationContext applicationContext, ILogger logger)");
+            //_logger.LogInformation("UdpReceiver - constructor");
         }
 
         public void Start()
         {            
             _task.Start();
-            _logger.LogInformation("_task.Start();");
+            _logger.LogInformation("UdpReceiver => Start");
         }
 
         public void Stop()
         {
+            _logger.LogInformation("UdpReceiver => Stop");
             _tokenSource.Cancel();
             _udpClient.Close();
         }
@@ -119,7 +120,7 @@ namespace MptService.Track.Server
             catch (Exception ex)
             {
                 // Console.WriteLine("Receive error: " + ex.Message);
-                _logger.LogError("error: " + ex.Message);
+                _logger.LogError("ERROR (UdpReceiver.Receive): " + ex.Message);
             }
             finally
             {

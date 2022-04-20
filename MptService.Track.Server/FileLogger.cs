@@ -42,6 +42,21 @@ namespace MptService.Track.Server
                 }
             }
         }
+
+        public static void Clear(string path)
+        {
+            DateTime currentTime = DateTime.Now;
+            var files = Directory.GetFiles(path);
+            foreach (string item in files)
+            {
+                FileInfo fileInfo = new FileInfo(item);
+                TimeSpan timeSpan = currentTime - fileInfo.CreationTime;
+                if (timeSpan.TotalDays > 10) // 10 последних дней
+                {
+                    fileInfo.Delete();
+                }
+            }
+        }
     }
 
     public class FileLoggerProvider : ILoggerProvider
