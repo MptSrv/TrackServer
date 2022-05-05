@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace MptService.Track.Server
 {
@@ -56,7 +54,7 @@ namespace MptService.Track.Server
                     fileInfo.Delete();
                 }
             }
-        }
+        }      
     }
 
     public class FileLoggerProvider : ILoggerProvider

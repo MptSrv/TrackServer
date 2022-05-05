@@ -24,24 +24,47 @@ namespace MptService.Track.Server
         private List<Station> _stations;
 
         /// <summary>
+        /// Сокет для приема UDP-пакетов
+        /// </summary>
+        private readonly IPEndPoint _endPoint = new IPEndPoint(IPAddress.Any, 4100);
+
+        /// <summary>
         /// Минимальная длина валидного пакета
         /// </summary>
         private const int _minPacketLength = 8;
 
         private ILogger _logger;
+
+        /// <summary>
+        /// Произошла критическая ошибка при прослушивании UDP-порта
+        /// </summary>
+        public bool IsCrashed { get; private set; }
         
         public UdpReceiver(ApplicationContext applicationContext, ILogger logger)
         {
-            IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, 4100);
-            _udpClient = new UdpClient(endPoint);
+            _udpClient = new UdpClient(_endPoint);
             _tokenSource = new CancellationTokenSource();
             _task = new Task(() => Receive(_tokenSource.Token), TaskCreationOptions.LongRunning); // выделяем прослушивание UDP-порта в отдельный Task (поток)
+            //UdpInit();
+
             _applicationContext = applicationContext;
             _stations = _applicationContext.Stations.ToList(); // получаем [однократно, при запуске] список станций
                                                                // 
             _logger = logger;
             //_logger.LogInformation("UdpReceiver - constructor");
         }
+
+        //private void UdpInit()
+        //{        
+        //    if (_udpClient != null)
+        //    {
+        //        _udpClient.Close();                
+        //        _udpClient = null;
+        //    }
+        //    _udpClient = new UdpClient(_endPoint);
+        //    _tokenSource = new CancellationTokenSource();
+        //    _task = new Task(() => Receive(_tokenSource.Token), TaskCreationOptions.LongRunning); // выделяем прослушивание UDP-порта в отдельный Task (поток)
+        //}
 
         public void Start()
         {            
@@ -53,7 +76,7 @@ namespace MptService.Track.Server
         {
             _logger.LogInformation("UdpReceiver => Stop");
             _tokenSource.Cancel();
-            _udpClient.Close();
+            _udpClient.Close();            
         }
 
         private void Receive(CancellationToken token)
@@ -62,7 +85,13 @@ namespace MptService.Track.Server
             try
             {
                 while (!token.IsCancellationRequested)
-                {                    
+                { 
+                    // =================================
+                    //if (DateTime.Now.Minute % 5 == 0)
+                    //{
+                    //    throw new Exception("Test Exception");
+                    //}
+                    // =================================
                     byte[] bytes = _udpClient.Receive(ref remoteEndPoint);                    
 
                     if (!UdpPacketHandler.IsChecksumCorrect(bytes) || bytes.Length < _minPacketLength)
@@ -121,10 +150,11 @@ namespace MptService.Track.Server
             {
                 // Console.WriteLine("Receive error: " + ex.Message);
                 _logger.LogError("ERROR (UdpReceiver.Receive): " + ex.Message);
+
+                IsCrashed = !token.IsCancellationRequested;
             }
             finally
             {
-                // Console.WriteLine("And finally!");                
                 _udpClient.Close(); // TODO?
             }
         }        

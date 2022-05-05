@@ -42,18 +42,40 @@ namespace MptService.Track.Server
             _fileLogger = loggerFactory.CreateLogger("FileLogger");
             //_fileLogger.LogInformation(companyPath);
 
-            _applicationContext = applicationContext;            
+            _applicationContext = applicationContext;                        
         }
+
+       
+        /// <summary>
+        /// Периодическая очистка устаревших лог-файлов
+        /// </summary>
+        /// <param name="stoppingToken"></param>
+        private async void LogMonitor(CancellationToken stoppingToken)
+        {
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                FileLogger.Clear(_logDirectory);
+                _logger.LogInformation("Logs cleared at: {time}", DateTimeOffset.Now);
+                await Task.Delay(TimeSpan.FromDays(1), stoppingToken); // раз в сутки
+            }
+        }     
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
                 _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                FileLogger.Clear(_logDirectory);
-                _logger.LogInformation("Logs cleared at: {time}", DateTimeOffset.Now);
+                //FileLogger.Clear(_logDirectory);
+                
                 //_fileLogger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                await Task.Delay(TimeSpan.FromDays(1), stoppingToken); // TODO: периодические действия?     
+                //await Task.Delay(TimeSpan.FromDays(1), stoppingToken); // TODO: периодические действия?     
+                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken); // каждые 5 минут проверяем
+                if (_udpReceiver.IsCrashed)
+                {
+                    _logger.LogInformation("UDP Crashed at: {time}", DateTimeOffset.Now);
+                    _udpReceiver = new UdpReceiver(_applicationContext, _logger);
+                    _udpReceiver.Start();
+                }
             }
         }
 
@@ -65,6 +87,7 @@ namespace MptService.Track.Server
 
             _logger.LogInformation("Worker started at: {time}", DateTimeOffset.Now);
             //_fileLogger.LogInformation("Worker started at: {time}", DateTimeOffset.Now);
+            LogMonitor(cancellationToken);
 
             return base.StartAsync(cancellationToken);
         }
